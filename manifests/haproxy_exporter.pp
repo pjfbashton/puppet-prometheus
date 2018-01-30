@@ -103,7 +103,12 @@ class prometheus::haproxy_exporter(
     default => undef,
   }
 
-  $options = "-haproxy.scrape-uri=\"${cnf_scrape_uri}\" ${extra_options}"
+  if ( versioncmp($version, '0.8.0') < 0 ){
+    $options = "-haproxy.scrape-uri=\"${cnf_scrape_uri}\" ${extra_options}"
+  }
+  else {
+    $options = "--haproxy.scrape-uri=\"${cnf_scrape_uri}\" ${extra_options}"
+  }
 
   prometheus::daemon { 'haproxy_exporter':
     install_method     => $install_method,
