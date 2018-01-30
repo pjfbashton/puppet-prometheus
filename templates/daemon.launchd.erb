@@ -12,6 +12,13 @@
 <% end %>
     <key>RunAtLoad</key>         <true/>
     <key>KeepAlive</key>         <true/>
+    <key>EnvironmentVariables</key>
+        <dict>
+<% @env_vars.each do |key, value| -%>
+            <key><%= key %></key>
+            <string><%= value %></string>
+<% end -%>
+        </dict>
     <key>ProgramArguments</key>
         <array>
             <string><%= @bin_dir %>/<%= @name %></string>

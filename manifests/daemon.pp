@@ -60,22 +60,24 @@ define prometheus::daemon (
   $user,
   $group,
 
-  $install_method     = $::prometheus::params::install_method,
-  $download_extension = $::prometheus::params::download_extension,
-  $os                 = $::prometheus::params::os,
-  $arch               = $::prometheus::params::arch,
-  $bin_dir            = $::prometheus::params::bin_dir,
-  $package_name       = undef,
-  $package_ensure     = 'installed',
-  $manage_user        = true,
-  $extra_groups       = [],
-  $manage_group       = true,
-  $purge              = true,
-  $options            = '',
-  $init_style         = $::prometheus::params::init_style,
-  $service_ensure     = 'running',
-  $service_enable     = true,
-  $manage_service     = true,
+  $install_method                 = $::prometheus::params::install_method,
+  $download_extension             = $::prometheus::params::download_extension,
+  $os                             = $::prometheus::params::os,
+  $arch                           = $::prometheus::params::arch,
+  $bin_dir                        = $::prometheus::params::bin_dir,
+  $package_name                   = undef,
+  $package_ensure                 = 'installed',
+  $manage_user                    = true,
+  $extra_groups                   = [],
+  $manage_group                   = true,
+  $purge                          = true,
+  $options                        = '',
+  $init_style                     = $::prometheus::params::init_style,
+  $service_ensure                 = 'running',
+  $service_enable                 = true,
+  $manage_service                 = true,
+  Hash[String, Scalar] $env_vars  = {},
+  Optional[String] $env_file_path = $::prometheus::params::env_file_path,
 ) {
 
   case $install_method {
@@ -149,7 +151,6 @@ define prometheus::daemon (
 
 
   if $init_style {
-
     case $init_style {
       'upstart' : {
         file { "/etc/init/${name}.conf":
@@ -213,6 +214,16 @@ define prometheus::daemon (
       default : {
         fail("I don't know how to create an init script for style ${init_style}")
       }
+    }
+  }
+
+  if $env_file_path != undef {
+    file { "${env_file_path}/${name}":
+      mode    => '0644',
+      owner   => 'root',
+      group   => 'root',
+      content => template('prometheus/daemon.env.erb'),
+      notify  => $notify_service,
     }
   }
 

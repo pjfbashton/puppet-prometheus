@@ -21,7 +21,8 @@ describe 'prometheus::daemon' do
           real_download_url: 'https://github.com/prometheus/smurf_exporter/releases/v1.2.3/smurf_exporter-1.2.3.any.tar.gz',
           notify_service:    'Service[smurf_exporter]',
           user:              'smurf_user',
-          group:             'smurf_group'
+          group:             'smurf_group',
+          env_vars:          { SOMEVAR: 42 }
         }
       ].each do |parameters|
         context "with parameters #{parameters}" do
@@ -142,6 +143,28 @@ describe 'prometheus::daemon' do
           else
             it {
               is_expected.to raise_error(Puppet::Error, %r{I don.t know how to create an init script for style})
+            }
+          end
+
+          if ['debian-7-x86_64', 'ubuntu-14.04-x86_64', 'debian-8-x86_64', 'ubuntu-16.04-x86_64'].include?(os)
+            it {
+              is_expected.to contain_file('/etc/default/smurf_exporter').with(
+                'mode'    => '0644',
+                'owner'   => 'root',
+                'group'   => 'root'
+              ).with_content(
+                %r{SOMEVAR=42\n}
+              )
+            }
+          elsif ['centos-6-x86_64', 'redhat-6-x86_64', 'centos-7-x86_64', 'redhat-7-x86_64'].include?(os)
+            it {
+              is_expected.to contain_file('/etc/sysconfig/smurf_exporter').with(
+                'mode'    => '0644',
+                'owner'   => 'root',
+                'group'   => 'root'
+              ).with_content(
+                %r{SOMEVAR=42\n}
+              )
             }
           end
 

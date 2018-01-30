@@ -192,6 +192,7 @@ class prometheus::params {
   $os = downcase($::kernel)
 
   if $::operatingsystem == 'Ubuntu' {
+    $env_file_path = '/etc/default'
     if versioncmp($::operatingsystemrelease, '8.04') < 1 {
       $init_style = 'debian'
     } elsif versioncmp($::operatingsystemrelease, '15.04') < 0 {
@@ -200,36 +201,44 @@ class prometheus::params {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem =~ /Scientific|CentOS|RedHat|OracleLinux/ {
+    $env_file_path = '/etc/sysconfig'
     if versioncmp($::operatingsystemrelease, '7.0') < 0 {
       $init_style = 'sysv'
     } else {
       $init_style  = 'systemd'
     }
   } elsif $::operatingsystem == 'Fedora' {
+    $env_file_path = '/etc/sysconfig'
     if versioncmp($::operatingsystemrelease, '12') < 0 {
       $init_style = 'sysv'
     } else {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem == 'Debian' {
+    $env_file_path = '/etc/default'
     if versioncmp($::operatingsystemrelease, '8.0') < 0 {
       $init_style = 'debian'
     } else {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem == 'Archlinux' {
+    $env_file_path = '/etc/default'
     $init_style = 'systemd'
   } elsif $::operatingsystem == 'OpenSuSE' {
+    $env_file_path = '/etc/sysconfig'
     $init_style = 'systemd'
   } elsif $::operatingsystem =~ /SLE[SD]/ {
+    $env_file_path = '/etc/sysconfig'
     if versioncmp($::operatingsystemrelease, '12.0') < 0 {
       $init_style = 'sles'
     } else {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem == 'Darwin' {
+    $env_file_path = undef
     $init_style = 'launchd'
   } elsif $::operatingsystem == 'Amazon' {
+    $env_file_path = '/etc/sysconfig'
     $init_style = 'sysv'
   } else {
     $init_style = undef
